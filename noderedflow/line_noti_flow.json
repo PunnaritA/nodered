@@ -1,0 +1,453 @@
+[
+    {
+        "id": "d1995414455eb0cb",
+        "type": "tab",
+        "label": "Email Notification",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "df74517bcbae9e4c",
+        "type": "function",
+        "z": "d1995414455eb0cb",
+        "name": "Filter",
+        "func": "if (msg.from == \"kittipob.tipr@mail.kmutt.ac.th\") {\n    if (msg.from == \"korakot.thas@mail.kmutt.ac.th\") {\n        fn();\n    }\n}\n\nvar fn = function() {\n    const pattern_money = /([.\\d]{5})/mi;\n    if (!pattern_money.test(msg.payload)) {\n        return;\n    }\n\n    msg.money = Number(pattern_money.exec(msg.payload)[1]) ?? 0;\n    if (msg.money != 10.00) {\n        msg.money = 0.00;\n    }\n}\n\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 100,
+        "wires": [
+            [
+                "236fa8749be67e33",
+                "b76caca9b2a99745"
+            ]
+        ]
+    },
+    {
+        "id": "7a6a1610a00503e2",
+        "type": "http request",
+        "z": "d1995414455eb0cb",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://notify-api.line.me/api/notify",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1110,
+        "y": 120,
+        "wires": [
+            [
+                "f5f646aafa64d31e"
+            ]
+        ]
+    },
+    {
+        "id": "f5f646aafa64d31e",
+        "type": "debug",
+        "z": "d1995414455eb0cb",
+        "name": "LINE message",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1300,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "23c475a07c076c91",
+        "type": "function",
+        "z": "d1995414455eb0cb",
+        "name": "Message",
+        "func": "let a = Math.floor(Math.random()*1000000);\nmsg.payload = `Incoming - 027777777 (Contact undefined)\nMessage: Transfer from KBNK/x${a} amount THB 10.00 to your account x381570 on\n22/07@11:31 Available balance is THB XXX.00. (22/7/24 11:31)`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 420,
+        "wires": [
+            [
+                "01d061dfd64b59c5",
+                "76ec50d25be45e8f"
+            ]
+        ]
+    },
+    {
+        "id": "f2c1464a2c09b4b3",
+        "type": "inject",
+        "z": "d1995414455eb0cb",
+        "name": "10.00 Baht",
+        "props": [
+            {
+                "p": "from",
+                "v": "korakot.thas@mail.kmutt.ac.th",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 300,
+        "y": 420,
+        "wires": [
+            [
+                "23c475a07c076c91"
+            ]
+        ]
+    },
+    {
+        "id": "41e4a7ed47e2e5e4",
+        "type": "debug",
+        "z": "d1995414455eb0cb",
+        "name": "Don't filter out yet",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 570,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "345b980a7b5ada64",
+        "type": "function",
+        "z": "d1995414455eb0cb",
+        "name": "Message",
+        "func": "msg.payload = `Incoming - 027777777 (Contact undefined)\nMessage: Transfer from KBNK/x882330 amount THB ${msg.money} to your account x381570 on\n22/07@11:31 Available balance is THB XXX.00. (22/7/24 11:31)`;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 480,
+        "wires": [
+            [
+                "01d061dfd64b59c5",
+                "76ec50d25be45e8f"
+            ]
+        ]
+    },
+    {
+        "id": "0e19963a5831360a",
+        "type": "inject",
+        "z": "d1995414455eb0cb",
+        "name": "Custom",
+        "props": [
+            {
+                "p": "from",
+                "v": "korakot.thas@mail.kmutt.ac.th",
+                "vt": "str"
+            },
+            {
+                "p": "money",
+                "v": "20.00",
+                "vt": "num"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 290,
+        "y": 480,
+        "wires": [
+            [
+                "345b980a7b5ada64"
+            ]
+        ]
+    },
+    {
+        "id": "3d1c946189b3e5ce",
+        "type": "debug",
+        "z": "d1995414455eb0cb",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "from",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 540,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "fe7118e6c4d9c2ef",
+        "type": "mqtt out",
+        "z": "d1995414455eb0cb",
+        "name": "",
+        "topic": "get_money",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f7dc776198573460",
+        "x": 1110,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "0f67d987b25cc3b8",
+        "type": "function",
+        "z": "d1995414455eb0cb",
+        "name": "Send to LINE",
+        "func": "const pattern_bank = /Transfer from ([^\\s]+) amount/mi;\nconst bank = pattern_bank.exec(msg.payload)[1];\n\nmsg.message = `You got ${msg.money.toFixed(2)} Bath from ${bank ?? \"??\"}`;\n\nmsg.token = 'eDqn5E5wdy1gFCKH7sjfcZHPZJOgZCnNGkOHLRVKwA8';\n\nmsg.headers = {\n 'content-type': 'application/x-www-form-urlencoded',\n 'Authorization': `Bearer ${msg.token}`\n};\n\nmsg.payload = {\n    \"message\": msg.message\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 930,
+        "y": 120,
+        "wires": [
+            [
+                "7a6a1610a00503e2"
+            ]
+        ]
+    },
+    {
+        "id": "236fa8749be67e33",
+        "type": "function",
+        "z": "d1995414455eb0cb",
+        "name": "Sent to MQTT",
+        "func": "msg.payload = msg.money.toFixed(2);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 60,
+        "wires": [
+            [
+                "89e33ce18a59dda5",
+                "fe7118e6c4d9c2ef"
+            ]
+        ]
+    },
+    {
+        "id": "89e33ce18a59dda5",
+        "type": "debug",
+        "z": "d1995414455eb0cb",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1100,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "3fb37ffe081a3996",
+        "type": "e-mail in",
+        "z": "d1995414455eb0cb",
+        "name": "Email Reciever Testing",
+        "protocol": "IMAP",
+        "server": "imap.gmail.com",
+        "useSSL": true,
+        "autotls": "never",
+        "port": "993",
+        "authtype": "BASIC",
+        "saslformat": true,
+        "token": "oauth2Response.access_token",
+        "box": "INBOX",
+        "disposition": "Read",
+        "criteria": "UNSEEN",
+        "repeat": "5",
+        "fetch": "auto",
+        "inputs": 0,
+        "x": 240,
+        "y": 100,
+        "wires": [
+            [
+                "df74517bcbae9e4c",
+                "41e4a7ed47e2e5e4",
+                "3d1c946189b3e5ce"
+            ]
+        ]
+    },
+    {
+        "id": "b76caca9b2a99745",
+        "type": "switch",
+        "z": "d1995414455eb0cb",
+        "name": "",
+        "property": "money",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "neq",
+                "v": "0.00",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 770,
+        "y": 120,
+        "wires": [
+            [
+                "0f67d987b25cc3b8"
+            ]
+        ]
+    },
+    {
+        "id": "01d061dfd64b59c5",
+        "type": "e-mail",
+        "z": "d1995414455eb0cb",
+        "server": "smtp.gmail.com",
+        "port": "465",
+        "authtype": "BASIC",
+        "saslformat": true,
+        "token": "oauth2Response.access_token",
+        "secure": true,
+        "tls": true,
+        "name": "korakot.thas@mail.kmutt.ac.th",
+        "dname": "Email Sender Testing",
+        "x": 720,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "76ec50d25be45e8f",
+        "type": "debug",
+        "z": "d1995414455eb0cb",
+        "name": "Don't filter out yet",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 710,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "8b1767c6db0618b6",
+        "type": "comment",
+        "z": "d1995414455eb0cb",
+        "name": "This flow is currently unused right now",
+        "info": "",
+        "x": 290,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "fae8b79146397582",
+        "type": "inject",
+        "z": "d1995414455eb0cb",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 240,
+        "y": 20,
+        "wires": [
+            [
+                "c52371b06704e455"
+            ]
+        ]
+    },
+    {
+        "id": "c52371b06704e455",
+        "type": "function",
+        "z": "d1995414455eb0cb",
+        "name": "function 7",
+        "func": "msg.payload = ``\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 60,
+        "wires": [
+            [
+                "df74517bcbae9e4c"
+            ]
+        ]
+    },
+    {
+        "id": "f7dc776198573460",
+        "type": "mqtt-broker",
+        "name": "MQTT2",
+        "broker": "202.44.12.37",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]

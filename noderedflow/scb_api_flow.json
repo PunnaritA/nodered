@@ -1,0 +1,1624 @@
+[
+    {
+        "id": "1f011e206343471d",
+        "type": "tab",
+        "label": "Flow 5",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "e944b43792309546",
+        "type": "http request",
+        "z": "1f011e206343471d",
+        "name": "Request Acess Token",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1070,
+        "y": 220,
+        "wires": [
+            [
+                "a25a421b0dc67257",
+                "7008ebd11dffc47f"
+            ]
+        ]
+    },
+    {
+        "id": "338814d4b320cd8d",
+        "type": "inject",
+        "z": "1f011e206343471d",
+        "name": "Sandbox",
+        "props": [
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "a",
+        "x": 130,
+        "y": 200,
+        "wires": [
+            [
+                "a69c193d58d8c665"
+            ]
+        ],
+        "info": "// For commercial use, use https://api.partners.scb/\r\n// For debugging or testing, use https://api-sandbox.partners.scb/"
+    },
+    {
+        "id": "e5f4e24fafe7a6fc",
+        "type": "function",
+        "z": "1f011e206343471d",
+        "name": "Request Acess Token",
+        "func": "msg.url = `${msg.data.api_host}/partners${msg.data.is_sandbox?\"/sandbox\":\"\"}/v1/oauth/token`;\n\nmsg.data.headers = {\n    \"content_type\": \"application/json\",\n    \"resourceOwnerId\": msg.data.api_key,\n    \"accept-language\": \"EN\"\n};\nmsg.headers = msg.data.headers;\n\nmsg.payload = {\n    \"applicationKey\": msg.data.api_key,\n    \"applicationSecret\": msg.data.api_secret\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 700,
+        "y": 220,
+        "wires": [
+            [
+                "5a11f3e3ef994fbc"
+            ]
+        ]
+    },
+    {
+        "id": "a25a421b0dc67257",
+        "type": "switch",
+        "z": "1f011e206343471d",
+        "name": "Is Success?",
+        "property": "payload.status.code",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1000",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1280,
+        "y": 220,
+        "wires": [
+            [
+                "70819dd0634ee0f9"
+            ],
+            [
+                "41734ad9cde6f840"
+            ]
+        ]
+    },
+    {
+        "id": "7b23f32d608d5591",
+        "type": "http request",
+        "z": "1f011e206343471d",
+        "name": "QR Generation API",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 910,
+        "y": 300,
+        "wires": [
+            [
+                "e4d44ac2fd1ea1df"
+            ]
+        ]
+    },
+    {
+        "id": "1c9c9c5df3e1998a",
+        "type": "function",
+        "z": "1f011e206343471d",
+        "name": "QR Generation API",
+        "func": "msg.url = `${msg.data.api_host}/partners${msg.data.is_sandbox?\"/sandbox\":\"\"}/v1/payment/qrcode/create`;\n\nmsg.data.access_token = msg.payload.data.accessToken;\nmsg.data.headers.authorization = `Bearer ${msg.data.access_token}`;\nmsg.headers = msg.data.headers;\n\n// Generate 8 letters long reference codes\nmsg.data.ref1 = (Math.random() + 1).toString(36).toUpperCase().substring(2, 10);\nmsg.data.ref2 = (Math.random() + 1).toString(36).toUpperCase().substring(2, 10);\n\nmsg.payload = {\n    \"qrType\": \"PP\",\n    \"amount\": msg.data.amount,\n    \"ppType\": \"BILLERID\",\n    \"ppId\": msg.data.biller_id,\n    \"ref1\": msg.data.ref1,\n    \"ref2\": msg.data.ref2,\n    \"ref3\": \"XAX\"\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 690,
+        "y": 300,
+        "wires": [
+            [
+                "7b23f32d608d5591"
+            ]
+        ]
+    },
+    {
+        "id": "e4d44ac2fd1ea1df",
+        "type": "switch",
+        "z": "1f011e206343471d",
+        "name": "Is Success?",
+        "property": "payload.status.code",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1000",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 1110,
+        "y": 300,
+        "wires": [
+            [
+                "1248a452a7187162"
+            ],
+            [
+                "41734ad9cde6f840"
+            ]
+        ]
+    },
+    {
+        "id": "41734ad9cde6f840",
+        "type": "debug",
+        "z": "1f011e206343471d",
+        "name": "Failed",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1320,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "7008ebd11dffc47f",
+        "type": "debug",
+        "z": "1f011e206343471d",
+        "name": "debug 22",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1270,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "caef9bf2f73db3fe",
+        "type": "function",
+        "z": "1f011e206343471d",
+        "name": "Create QR code",
+        "func": "\nmsg.data.qr_raw_data = msg.payload.data.qrRawData;\nmsg.data.qr_image = msg.payload.data.qrImage;\nflow.set(\"data\", msg.data);\n\nmsg.payload = msg.data.qr_image\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 380,
+        "wires": [
+            [
+                "9c920287f24bc8f1",
+                "c8d415d05bc42ef0",
+                "2a25c40c1fe1eae9"
+            ]
+        ]
+    },
+    {
+        "id": "9c920287f24bc8f1",
+        "type": "debug",
+        "z": "1f011e206343471d",
+        "name": "Success",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 610,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "8327c7b9de943579",
+        "type": "comment",
+        "z": "1f011e206343471d",
+        "name": "Generate QR code",
+        "info": "",
+        "x": 170,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "e8222e655c38e220",
+        "type": "comment",
+        "z": "1f011e206343471d",
+        "name": "Payment Confirmation",
+        "info": "",
+        "x": 230,
+        "y": 940,
+        "wires": []
+    },
+    {
+        "id": "9dc73ea4c60a33e4",
+        "type": "inject",
+        "z": "1f011e206343471d",
+        "name": "",
+        "props": [
+            {
+                "p": "data",
+                "v": "data",
+                "vt": "flow"
+            },
+            {
+                "p": "data.channel_date_time",
+                "v": "iso",
+                "vt": "date"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 170,
+        "y": 1060,
+        "wires": [
+            [
+                "9b78dac93548f520"
+            ]
+        ]
+    },
+    {
+        "id": "9e38ae734a444d5a",
+        "type": "function",
+        "z": "1f011e206343471d",
+        "name": "Inquiry API",
+        "func": "msg.data.transaction_date = msg.data.channel_date_time.substring(0, 10);\n\n// msg.url = `${msg.data.api_host}/partners${msg.data.is_sandbox ? \"/sandbox\" : \"\"}/v1/payment/billpayment/inquiry?billerId=${msg.data.biller_id}&reference1=${msg.data.ref1}&transactionDate=${msg.data.transaction_date}&eventCode=00300100`\n\nlet params = `eventCode=00300100&transactionDate=${msg.data.transaction_date}&billerId=923347865117925&reference1=${msg.data.ref1}`;\n\nmsg.url = `http://api-sandbox.partners.scb/partners/sandbox/v1/payment/billpayment/inquiry?${params}`;\n\nmsg.headers = msg.data.headers;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 1060,
+        "wires": [
+            [
+                "68c526014fdb78b3",
+                "21079ae7f894b509",
+                "71392c1a0e373733"
+            ]
+        ]
+    },
+    {
+        "id": "9b78dac93548f520",
+        "type": "switch",
+        "z": "1f011e206343471d",
+        "name": "",
+        "property": "is_sending_api",
+        "propertyType": "flow",
+        "rules": [
+            {
+                "t": "true"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 330,
+        "y": 1060,
+        "wires": [
+            [
+                "9e2830f103f0ef49"
+            ]
+        ]
+    },
+    {
+        "id": "21079ae7f894b509",
+        "type": "debug",
+        "z": "1f011e206343471d",
+        "name": "API payload",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 810,
+        "y": 960,
+        "wires": []
+    },
+    {
+        "id": "ebb9e2c5f21fa882",
+        "type": "switch",
+        "z": "1f011e206343471d",
+        "name": "Is Success?",
+        "property": "payload.status.code",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1000",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 990,
+        "y": 1060,
+        "wires": [
+            [
+                "c8c70995049db445"
+            ],
+            [
+                "497b2789b0bce75d"
+            ]
+        ]
+    },
+    {
+        "id": "497b2789b0bce75d",
+        "type": "debug",
+        "z": "1f011e206343471d",
+        "name": "Failed (Inquiry)",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1200,
+        "y": 1060,
+        "wires": []
+    },
+    {
+        "id": "68c526014fdb78b3",
+        "type": "http request",
+        "z": "1f011e206343471d",
+        "name": "Inquiry API",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 810,
+        "y": 1060,
+        "wires": [
+            [
+                "ebb9e2c5f21fa882"
+            ]
+        ]
+    },
+    {
+        "id": "c8c70995049db445",
+        "type": "function",
+        "z": "1f011e206343471d",
+        "name": "Loop count",
+        "func": "var current_transactions = msg.payload.data;\nvar previous_transactions = flow.get(\"transactions\") ?? [];\nvar current_length = current_transactions.length;\nvar previous_length = previous_transactions.length;\n\nif (current_length > previous_length) {\n    msg.count = current_length - previous_length;\n    flow.set(\"transactions\", current_transactions);\n    let income = msg.count * Number(msg.data.amount);\n    msg.payload = { \n        \"income_qr\": income, \n        \"timestamp\": new Date() \n    };\n    return msg;\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 270,
+        "y": 1120,
+        "wires": [
+            [
+                "8a8334fa43441d96",
+                "49b6b32039e25772"
+            ]
+        ]
+    },
+    {
+        "id": "9bdcd3f4789c91f2",
+        "type": "mqtt out",
+        "z": "1f011e206343471d",
+        "name": "MQTT Publisher",
+        "topic": "get_money",
+        "qos": "",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f7dc776198573460",
+        "x": 1110,
+        "y": 1220,
+        "wires": []
+    },
+    {
+        "id": "a76e1cf8a47c2f83",
+        "type": "function",
+        "z": "1f011e206343471d",
+        "name": "Send to MQTT",
+        "func": "msg.payload = \"10.00\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 1200,
+        "wires": [
+            [
+                "9bdcd3f4789c91f2",
+                "e04e1d215a1b3be4"
+            ]
+        ]
+    },
+    {
+        "id": "e04e1d215a1b3be4",
+        "type": "debug",
+        "z": "1f011e206343471d",
+        "name": "MQTT Message",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1100,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "0395195660d64fcc",
+        "type": "debug",
+        "z": "1f011e206343471d",
+        "name": "Success",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 860,
+        "y": 1140,
+        "wires": []
+    },
+    {
+        "id": "c543c373ca333b7f",
+        "type": "inject",
+        "z": "1f011e206343471d",
+        "name": "Create QR code from existing access token",
+        "props": [
+            {
+                "p": "data.qr_image",
+                "v": "data.qr_image",
+                "vt": "flow"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 250,
+        "y": 480,
+        "wires": [
+            [
+                "c8d415d05bc42ef0"
+            ]
+        ]
+    },
+    {
+        "id": "90c313b82f8c31cc",
+        "type": "inject",
+        "z": "1f011e206343471d",
+        "name": "Actual",
+        "props": [
+            {
+                "p": "data.amount",
+                "v": "10.00",
+                "vt": "str"
+            },
+            {
+                "p": "data.api_host",
+                "v": "https://api.partners.scb",
+                "vt": "str"
+            },
+            {
+                "p": "data.is_sandbox",
+                "v": "false",
+                "vt": "bool"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 290,
+        "y": 240,
+        "wires": [
+            [
+                "3f458bc7999dadcf"
+            ]
+        ],
+        "info": "// For commercial use, use https://api.partners.scb/\r\n// For debugging or testing, use https://api-sandbox.partners.scb/"
+    },
+    {
+        "id": "1248a452a7187162",
+        "type": "change",
+        "z": "1f011e206343471d",
+        "name": "",
+        "rules": [
+            {
+                "t": "delete",
+                "p": "data",
+                "pt": "flow"
+            },
+            {
+                "t": "delete",
+                "p": "transactions",
+                "pt": "flow"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 190,
+        "y": 400,
+        "wires": [
+            [
+                "caef9bf2f73db3fe"
+            ]
+        ]
+    },
+    {
+        "id": "be9ed9b1654c9a97",
+        "type": "function",
+        "z": "1f011e206343471d",
+        "name": "function 20",
+        "func": "msg.count -= 1;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 1200,
+        "wires": [
+            [
+                "bf25cea4a05a3d11"
+            ]
+        ]
+    },
+    {
+        "id": "bf25cea4a05a3d11",
+        "type": "delay",
+        "z": "1f011e206343471d",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "5",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 700,
+        "y": 1200,
+        "wires": [
+            [
+                "49b6b32039e25772",
+                "a76e1cf8a47c2f83",
+                "2fa8a4c8bd703e61"
+            ]
+        ]
+    },
+    {
+        "id": "49b6b32039e25772",
+        "type": "switch",
+        "z": "1f011e206343471d",
+        "name": "loop",
+        "property": "count",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "lte",
+                "v": "0",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 590,
+        "y": 1160,
+        "wires": [
+            [
+                "0395195660d64fcc"
+            ],
+            [
+                "be9ed9b1654c9a97"
+            ]
+        ]
+    },
+    {
+        "id": "71d2235115737ac5",
+        "type": "debug",
+        "z": "1f011e206343471d",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "message",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1300,
+        "y": 1260,
+        "wires": []
+    },
+    {
+        "id": "2fa8a4c8bd703e61",
+        "type": "function",
+        "z": "1f011e206343471d",
+        "name": "ส่งข้อความ",
+        "func": "msg.token = 'eDqn5E5wdy1gFCKH7sjfcZHPZJOgZCnNGkOHLRVKwA8';\nmsg.message = `You got ฿${10} from QR code.`\n\nmsg.headers = {\n    'content-type':'application/x-www-form-urlencoded',\n    'Authorization':'Bearer ' + msg.token\n};\nmsg.payload = {\n    'message': msg.message,\n};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 1260,
+        "wires": [
+            [
+                "6988c56178dc795c"
+            ]
+        ]
+    },
+    {
+        "id": "6988c56178dc795c",
+        "type": "http request",
+        "z": "1f011e206343471d",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://notify-api.line.me/api/notify",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1060,
+        "y": 1260,
+        "wires": [
+            [
+                "71d2235115737ac5"
+            ]
+        ]
+    },
+    {
+        "id": "d9f90552efa41b71",
+        "type": "inject",
+        "z": "1f011e206343471d",
+        "name": "Debug get_money",
+        "props": [
+            {
+                "p": "count",
+                "v": "1",
+                "vt": "num"
+            },
+            {
+                "p": "data.amount",
+                "v": "10.00",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 210,
+        "y": 1160,
+        "wires": [
+            [
+                "49b6b32039e25772"
+            ]
+        ]
+    },
+    {
+        "id": "457b3b8069895e66",
+        "type": "inject",
+        "z": "1f011e206343471d",
+        "name": "toggle send api",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "is_sending_api",
+        "payloadType": "flow",
+        "x": 200,
+        "y": 1000,
+        "wires": [
+            [
+                "c3942902b994cc82"
+            ]
+        ]
+    },
+    {
+        "id": "c3942902b994cc82",
+        "type": "function",
+        "z": "1f011e206343471d",
+        "name": "toggle",
+        "func": "flow.set(\"is_sending_api\", !msg.payload)\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 400,
+        "y": 1000,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "710460812200da87",
+        "type": "mqtt in",
+        "z": "1f011e206343471d",
+        "name": "call_image",
+        "topic": "call_image",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "f7dc776198573460",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 140,
+        "wires": [
+            [
+                "43a335b50693f631"
+            ]
+        ]
+    },
+    {
+        "id": "a69c193d58d8c665",
+        "type": "change",
+        "z": "1f011e206343471d",
+        "name": "set data",
+        "rules": [
+            {
+                "t": "set",
+                "p": "data.amount",
+                "pt": "msg",
+                "to": "10.00",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "data.api_host",
+                "pt": "msg",
+                "to": "http://api-sandbox.partners.scb",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "data.is_sandbox",
+                "pt": "msg",
+                "to": "true",
+                "tot": "bool"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 290,
+        "y": 200,
+        "wires": [
+            [
+                "6fd3e7a43066c703"
+            ]
+        ]
+    },
+    {
+        "id": "25856a9f5ffde2f9",
+        "type": "template",
+        "z": "1f011e206343471d",
+        "name": "Image Template",
+        "field": "template",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<img width=\"100%\" height=\"100%\" src=\"{{{payload.image.base64}}}\">",
+        "output": "str",
+        "x": 640,
+        "y": 1380,
+        "wires": [
+            [
+                "2017ce167e819a5f"
+            ]
+        ]
+    },
+    {
+        "id": "e61f320002d5cc6f",
+        "type": "template",
+        "z": "1f011e206343471d",
+        "name": "",
+        "field": "template",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<img width=\"320px\" height=\"240px\" src=\"{{{payload.image.base64}}} alt=\"Image Not Found\">",
+        "output": "str",
+        "x": 620,
+        "y": 1420,
+        "wires": [
+            [
+                "3f395822856aa260"
+            ]
+        ]
+    },
+    {
+        "id": "380abc05873b685d",
+        "type": "function",
+        "z": "1f011e206343471d",
+        "name": "function 21",
+        "func": "msg.payload.image.base64 = \"data:image/png;base64,\"+msg.payload.image.base64\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 410,
+        "y": 1380,
+        "wires": [
+            [
+                "25856a9f5ffde2f9",
+                "e61f320002d5cc6f"
+            ]
+        ]
+    },
+    {
+        "id": "603cfc374b6defab",
+        "type": "change",
+        "z": "1f011e206343471d",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "count",
+                "pt": "msg",
+                "to": "1",
+                "tot": "num"
+            },
+            {
+                "t": "set",
+                "p": "data.amount",
+                "pt": "msg",
+                "to": "10.00",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 360,
+        "y": 1200,
+        "wires": [
+            [
+                "49b6b32039e25772"
+            ]
+        ]
+    },
+    {
+        "id": "71392c1a0e373733",
+        "type": "debug",
+        "z": "1f011e206343471d",
+        "name": "url",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "url",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 790,
+        "y": 920,
+        "wires": []
+    },
+    {
+        "id": "e7b8894a53605af3",
+        "type": "inject",
+        "z": "1f011e206343471d",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 520,
+        "y": 1560,
+        "wires": [
+            [
+                "a3a118be78a8fab0"
+            ]
+        ]
+    },
+    {
+        "id": "989f6c2355e5fef7",
+        "type": "inject",
+        "z": "1f011e206343471d",
+        "name": "Create QR code from existing access token",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "data.qr_image",
+        "payloadType": "flow",
+        "x": 440,
+        "y": 1500,
+        "wires": [
+            [
+                "a3a118be78a8fab0"
+            ]
+        ]
+    },
+    {
+        "id": "a3a118be78a8fab0",
+        "type": "switch",
+        "z": "1f011e206343471d",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 750,
+        "y": 1500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "29a18e8bb2b09f1b",
+        "type": "inject",
+        "z": "1f011e206343471d",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "v": "",
+                "vt": "num"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 240,
+        "y": 1300,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6fd3e7a43066c703",
+        "type": "credentials",
+        "z": "1f011e206343471d",
+        "name": "",
+        "props": [
+            {
+                "value": "data.filename",
+                "type": "msg"
+            },
+            {
+                "value": "data.api_key",
+                "type": "msg"
+            },
+            {
+                "value": "data.api_secret",
+                "type": "msg"
+            },
+            {
+                "value": "data.biller_id",
+                "type": "msg"
+            },
+            {
+                "value": "data.amount",
+                "type": "msg"
+            },
+            {
+                "value": "data.api_host",
+                "type": "msg"
+            }
+        ],
+        "x": 470,
+        "y": 200,
+        "wires": [
+            [
+                "e5f4e24fafe7a6fc"
+            ]
+        ]
+    },
+    {
+        "id": "3f458bc7999dadcf",
+        "type": "credentials",
+        "z": "1f011e206343471d",
+        "name": "",
+        "props": [
+            {
+                "value": "data.filename",
+                "type": "msg"
+            },
+            {
+                "value": "data.api_key",
+                "type": "msg"
+            },
+            {
+                "value": "data.api_secret",
+                "type": "msg"
+            },
+            {
+                "value": "data.biller_id",
+                "type": "msg"
+            }
+        ],
+        "x": 470,
+        "y": 240,
+        "wires": [
+            [
+                "e5f4e24fafe7a6fc"
+            ]
+        ]
+    },
+    {
+        "id": "c8d415d05bc42ef0",
+        "type": "image viewer",
+        "z": "1f011e206343471d",
+        "name": "",
+        "width": "256",
+        "data": "data.qr_image",
+        "dataType": "msg",
+        "active": true,
+        "x": 500,
+        "y": 560,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8a8334fa43441d96",
+        "type": "influxdb out",
+        "z": "1f011e206343471d",
+        "influxdb": "e27fadb62251d702",
+        "name": "Influx Database",
+        "measurement": "number_data",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "s",
+        "retentionPolicyV18Flux": "",
+        "org": "KMUTT",
+        "bucket": "Node-RED",
+        "x": 640,
+        "y": 1120,
+        "wires": []
+    },
+    {
+        "id": "5a11f3e3ef994fbc",
+        "type": "uuid",
+        "z": "1f011e206343471d",
+        "uuidVersion": "v4",
+        "namespaceType": "",
+        "namespace": "",
+        "namespaceCustom": "",
+        "name": "",
+        "field": "headers.requestUId",
+        "fieldType": "msg",
+        "x": 880,
+        "y": 220,
+        "wires": [
+            [
+                "e944b43792309546"
+            ]
+        ]
+    },
+    {
+        "id": "9e2830f103f0ef49",
+        "type": "uuid",
+        "z": "1f011e206343471d",
+        "uuidVersion": "v4",
+        "namespaceType": "",
+        "namespace": "",
+        "namespaceCustom": "",
+        "name": "",
+        "field": "data.headers.requestUId",
+        "fieldType": "msg",
+        "x": 470,
+        "y": 1060,
+        "wires": [
+            [
+                "9e38ae734a444d5a"
+            ]
+        ]
+    },
+    {
+        "id": "70819dd0634ee0f9",
+        "type": "uuid",
+        "z": "1f011e206343471d",
+        "uuidVersion": "v4",
+        "namespaceType": "",
+        "namespace": "",
+        "namespaceCustom": "",
+        "name": "",
+        "field": "headers.requestUId",
+        "fieldType": "msg",
+        "x": 510,
+        "y": 300,
+        "wires": [
+            [
+                "1c9c9c5df3e1998a"
+            ]
+        ]
+    },
+    {
+        "id": "4b077b83e9266182",
+        "type": "ui_button",
+        "z": "1f011e206343471d",
+        "name": "",
+        "group": "9f02e43cd474c938",
+        "order": 1,
+        "width": "9",
+        "height": 3,
+        "passthru": true,
+        "label": "Sandbox",
+        "tooltip": "",
+        "color": "White",
+        "bgcolor": "#6a994e",
+        "className": "",
+        "icon": "",
+        "payload": "10.00",
+        "payloadType": "str",
+        "topic": "data.amount",
+        "topicType": "msg",
+        "x": 130,
+        "y": 240,
+        "wires": [
+            [
+                "a69c193d58d8c665"
+            ]
+        ]
+    },
+    {
+        "id": "9493f2e45ced9854",
+        "type": "ui_button",
+        "z": "1f011e206343471d",
+        "name": "",
+        "group": "9f02e43cd474c938",
+        "order": 5,
+        "width": "9",
+        "height": 3,
+        "passthru": false,
+        "label": "Debug get_money",
+        "tooltip": "",
+        "color": "White",
+        "bgcolor": "#bc4749",
+        "className": "",
+        "icon": "",
+        "payload": "a",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 170,
+        "y": 1200,
+        "wires": [
+            [
+                "603cfc374b6defab"
+            ]
+        ]
+    },
+    {
+        "id": "1203a7cadc626ce8",
+        "type": "ui_button",
+        "z": "1f011e206343471d",
+        "name": "",
+        "group": "c7a43587.2944e8",
+        "order": 9,
+        "width": "0",
+        "height": "0",
+        "passthru": false,
+        "label": "Show Test Image",
+        "tooltip": "",
+        "color": "Black",
+        "bgcolor": "LightGray",
+        "className": "",
+        "icon": "",
+        "payload": "iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQCAMAAAC3Ycb+AAAAAXNSR0IArs4c6QAAAGBQTFRFAAAAnZ2d////viYz4G+LSTwrpGQi64kx9+JrL0hORIkao84nGyYyAFeEMaLystzvNCqXZW1xzMzMcykwy0OnUk9ArZ0z7EcA+rQLEV4zFIB+FcKlIlr2mWT5947W9LmQOUPvewAAACB0Uk5TAP////////////////////////////////////////+Smq12AAAJWUlEQVR4nO3cQXIbOQxA0eziysJrz/0vOulYtNkQgAbZoBqS/9/ElmQK4HNV4klNfr1TqX5dPQDtA6RYgBQLkGIBUixAigVIsQApFiDFAqRYgBQLkGIBUixAigVIsQApFiDFAqRYgBQLkGIBUixAigVIsQApFiDFAqRYgBQLkGIBUixAigVIsQApFiDFAqRYgBQLkGIBUixAigVIsQApFiDFAqRYgBQLkGIBUixAigVIsV4C5Petq+fICJBiAVIsQIr19CC/Rd7zb7eumDMaIMUCpFiAFOupQSRGj9IuH5AHBkixACkWIMWyQD7+poF83Lp6bi9AigVIsQApVnmQjy7teQ2jZT3+6B1GAqRYgBQLkGKVBvlQ0p7XLt6C2r6u8g+IgBQLkGIBUqynA7E6AumTPzRevWcfIIDEA6RYgBTMu3yZ9RoJIF9z9Y59gAAyFiDFAqRYUQztoiMgV+8nA6RYgBQLkGI9FYiHYYFoX98+l+dfvesWIICMBUixALmgN5F8PApiAWkYVlfewxYggNwHyHeAALJPYmgdXeIMhoVz9X0AAsg+QPYBAsi+FRj9ZXuPAaIEyD5AANkHyL7LQbZWgESrhLEFCCD3AfIdIID4jcCcxZAgFXAAAcQPkGIBUih5+VeCXIUCCCB2gAACiCz6G3gPsApEe+zR9wEIIPsA2QcIIN+NYFgXpl2wdfEeRntePvboOwEEkO8AuQ8QQD7TMGZAtMctkKPk6664F0AA+QwQPUAA+cwC8VCiFz2L0dpmuOpeAAHkM0D0AAHku1Ug/WsjGPL1gADyFSCAfAfIfSX/gkqDaY9FMKIXbwUIIF8BAsg+QPZdDtIXATl6zAPQML1zr7gDQACxAwQQQKw8jP6StCIgMu1c+fkV9wAIIHqAfAYIIPdFLzgLRH6Nh/3ouwAEkPsA+Q4QQPaNXrB2gUevlxja1wByC5B9gACyD5B9pUGOLjz6NVF0QN4BkQECyD5A9pUEiV6ghmK9fvSsq1AAAWQfIPsAAWTfWRDrIr3XA+IEyD5AANkHyL6HgIwsNgMiL3MGwwJZfTcyQACJvRaQhQES72lBzl6+B7L6PrwAAST2WkAWBki8h4C0hdvn3uIWSBRq5OKt5x5xJ1aAAAKIFyCvDtKWlf9jjAbSPyafW4XRg8iz2sfRHbPvbgsQQADxAuSngfQo2mPeGTMg8jnttUfnRnfMvrstQAABxAuQVwbpl/7t1L/OOktb+ggmCinPHkU5mv1MgBjnRvY8f2P3AWKcG9nz/I3dB4hxbmTP8zd232kQ67IjIP3HkfcavfAsEPlYP//Z+5MBYpyrvW/7HJBbgAQCJLcpEO/SIyDytVGUVSDybOt9t4+1Ha2vmwkQ5WzrfbePAekCxAiQQiD9BY6AtKE9oMj79xf336328RmQyM7WjoAAcj8cIID8C5Cu7U0/RN4Fj4L0y3pz/GfkXfgMiAUQ+XzkXvsAcQIEEEC8ng4kiqENffQ6b6nt8tuvFkr7XM4/ihGZ3QIaudsWIEaAAPIvQIyeAmRrFONDNPLayDwSRD43ul/LmsubWXtu9H0BMQIEkH8BYlQeJHqpIwNrCK3Ib7xbHshI2gzanCO7bY3OAYiyHyCAfAWIsl95EG/QjK4Gsb4pjnaNvmZkFkCU/QAB5CtAlP1Kg8wMOpN3KdZsWb+ha3/xNrKr9brRfbYAeQcEECdA3p8IpP1ljjdsFpA8J7JEFoi368jsIwECCCCA/BSQCErW5XtLrgRp+2bsFcn6wRcQQAAB5FVAepSjy/KGHBncep22QCZGZB5vJ0AAAQQQQPyB5RtHBzwD0r4htJkaxp+/zUK03bT9VuzVPrdmAeQdEEAAOd7tqUC84SyQo4Gsx+XnFsbWn64ZiFbkDy1n68/2ZgHkHRD3cUACyUMBGS8NRP4HN+/iZxbykFvWbBkg2g++8pts5tK9/bxvMkAAAQSQVwY5QjkaUlvYO8/7wfAsSI/hXaA2DyCAAAIIIGN/QSWHsQb3lrKe05ZZCWJd7PbYCMhbl7WTfNzbCRBAAAHklUD64bUlIpcul/aek0uuAJG7aBdsfZNos2lfE90REEAAAeTVQbQl5OHWpWvPea3GkLtYO3mXe/S11uutPQEBBBBAfhJIf7g12Cjg0aCrQaIo1txe1vsBAggggPxUkNG0AY8WWAWi7eNd6CxEBETOBQgggADyiiDaEhl5C2wfrwKRO3kzZGFE5gEEEEC8AHlmkH6B/uNMFPm4NcdKEGu2/vkjAO2sCAoggADiBcizg1gLzeR9vYexlQ3i5V24dfHezl6ABALkDZClC3nDeZfgvS8gkwtt/zhMZDh5Ad57/hGtnL/No106ILcAObEQIPbOWoAEehmQ/h+pnBnOKhPkaIcISBQjsjMgBzt4Fw/ILUAmlwFkfOfTINZC8h/K3+qHP/N+2SB9FsjIpc9ibAEiAmQiQCaWAORCELmIhtF39r1Wgmx5l2r9AUW7+FGMLUCUABkMkMElALk/J/reaSB9rwrS73CEMRsgSoAMBshggMy3DKT9KhGeAWTrCERDyZgFECNABgJkMEDmWwLS0kAyWo3R6i+7PSZRsncExAmQYIBMBsh4TwfyiN/QvQARAXIiQMYDZDBARBVA2q/9boAAMh4g4wEy2NOCbAO2S3slkNaKb7YtQCYD5BYgkwEy1zKQVRcHyGSAzAXIZIAsPnc0QBafO1rDyJ4BkMkAWXzuaIAsPnc0QJQzrwRZNQMgCbNkngtIwiyZ5wKSMEvmuYAkzJJ5LiAJs2SeC0jCLJnnApIwS+a5gCTMknkuIAmzZJ4LSMIsmecCkjBL5rlLQFZdHCCTATIfIAmzZJ4LSMIsmecCkjBL5rmAJMySeS4gCbNkngtIwiyZ5z41SMaZGbNkngtIwiyZ5wKSMEvmuYAkzJJ5LiDF5gCk2ByAFJsDkGJzAFJsDkCKzQFIsTkAKTbH04CsQs6YJfNsQBJmyTwbkIRZMs8GJGGWzLMBSZgl82xAEmbJPBuQhFkyzwYkYZbMs9NBtIsDJB4gCbNkng1IwiyZZwOSMEvm2YAkzJJ5NiAJs2SeDUjCLJlnA5IwS+bZDwGpfG61WQApNgsgxWYBpNgsgBSbBZBiswBSbBZAis0CSLFZACk2CyDFZgGk2CyAFJsFkGKzAFJsFkCKzQJIsVkAKTYLIMVmAaTYLP8D/q5Zv4fbNWsAAAAASUVORK5CYII=",
+        "payloadType": "str",
+        "topic": "payload.image.base64",
+        "topicType": "msg",
+        "x": 210,
+        "y": 1380,
+        "wires": [
+            [
+                "380abc05873b685d"
+            ]
+        ]
+    },
+    {
+        "id": "2017ce167e819a5f",
+        "type": "ui_template",
+        "z": "1f011e206343471d",
+        "group": "c7a43587.2944e8",
+        "name": "Image",
+        "order": 12,
+        "width": 0,
+        "height": 0,
+        "format": "",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 810,
+        "y": 1380,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3f395822856aa260",
+        "type": "ui_template",
+        "z": "1f011e206343471d",
+        "group": "c7a43587.2944e8",
+        "name": "",
+        "order": 11,
+        "width": 0,
+        "height": 0,
+        "format": "",
+        "storeOutMessages": true,
+        "fwdInMessages": true,
+        "resendOnRefresh": true,
+        "templateScope": "local",
+        "className": "",
+        "x": 800,
+        "y": 1420,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3f62650f8d740cf8",
+        "type": "image viewer",
+        "z": "1f011e206343471d",
+        "name": "",
+        "width": 160,
+        "data": "payload",
+        "dataType": "msg",
+        "active": true,
+        "x": 960,
+        "y": 640,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "902e5b398c50391f",
+        "type": "mqtt out",
+        "z": "1f011e206343471d",
+        "name": "Receive_Image",
+        "topic": "Receive_Image",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f7dc776198573460",
+        "x": 1090,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "2a25c40c1fe1eae9",
+        "type": "jimp-image",
+        "z": "1f011e206343471d",
+        "name": "",
+        "data": "payload",
+        "dataType": "msg",
+        "ret": "img",
+        "parameter1": "",
+        "parameter1Type": "msg",
+        "parameter2": "",
+        "parameter2Type": "msg",
+        "parameter3": "",
+        "parameter3Type": "msg",
+        "parameter4": "",
+        "parameter4Type": "msg",
+        "parameter5": "",
+        "parameter5Type": "msg",
+        "parameter6": "",
+        "parameter6Type": "msg",
+        "parameter7": "",
+        "parameter7Type": "msg",
+        "parameter8": "",
+        "parameter8Type": "msg",
+        "sendProperty": "payload",
+        "sendPropertyType": "msg",
+        "parameterCount": 0,
+        "jimpFunction": "none",
+        "selectedJimpFunction": {
+            "name": "none",
+            "fn": "none",
+            "description": "Just loads the image.",
+            "parameters": []
+        },
+        "x": 640,
+        "y": 420,
+        "wires": [
+            [
+                "3f62650f8d740cf8",
+                "ba0fb971d6507891"
+            ]
+        ]
+    },
+    {
+        "id": "ba0fb971d6507891",
+        "type": "function",
+        "z": "1f011e206343471d",
+        "name": "function 22",
+        "func": "const ArduinoJimp = global.get('ArduinoJimp');\n\nArduinoJimp.convertToRGB565(msg.payload)\n    .then(rgb565Buffer => {\n        msg.payload = rgb565Buffer; // Replace payload with RGB565 buffer\n        node.send(msg); // Send the modified message\n    })\n    .catch(err => {\n        node.error(err.message); // Log the error\n    });\n\nreturn null; // For async operations",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 420,
+        "wires": [
+            [
+                "3d42c0f7a2dd6d80",
+                "902e5b398c50391f"
+            ]
+        ]
+    },
+    {
+        "id": "3d42c0f7a2dd6d80",
+        "type": "debug",
+        "z": "1f011e206343471d",
+        "name": "debug 23",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1070,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "cda16d0c6bb43482",
+        "type": "debug",
+        "z": "1f011e206343471d",
+        "name": "debug 24",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 480,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "43a335b50693f631",
+        "type": "function",
+        "z": "1f011e206343471d",
+        "name": "function 23",
+        "func": "// Retrieve the last processed message from context\nlet lastMessage = flow.get('lastMessage') || null;\n\n// Compare the new message with the last processed one\nif (msg.payload !== lastMessage) {\n    // Update the lastMessage in context\n    flow.set('lastMessage', msg.payload);\n    return msg; // Allow processing of the new message\n} else {\n    // If the message is the same, do nothing\n    return null;\n}\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 290,
+        "y": 140,
+        "wires": [
+            [
+                "cda16d0c6bb43482",
+                "a69c193d58d8c665"
+            ]
+        ]
+    },
+    {
+        "id": "f7dc776198573460",
+        "type": "mqtt-broker",
+        "name": "MQTT2",
+        "broker": "202.44.12.37",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "e27fadb62251d702",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": "8086",
+        "protocol": "http",
+        "database": "http://localhost:8086",
+        "name": "Local InfluxDB Database (Node-RED Token)",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://localhost:8086",
+        "timeout": "10",
+        "rejectUnauthorized": false
+    },
+    {
+        "id": "9f02e43cd474c938",
+        "type": "ui_group",
+        "name": "Debugger",
+        "tab": "48418b79.0f5834",
+        "order": 3,
+        "disp": true,
+        "width": "9",
+        "collapse": true,
+        "className": ""
+    },
+    {
+        "id": "c7a43587.2944e8",
+        "type": "ui_group",
+        "name": "Default",
+        "tab": "",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false
+    },
+    {
+        "id": "48418b79.0f5834",
+        "type": "ui_tab",
+        "name": "Main",
+        "icon": "dashboard",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    }
+]
